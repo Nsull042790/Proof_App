@@ -7,8 +7,8 @@ import { getPlayerDisplayName } from '@/lib/utils';
 import { Challenge } from '@/lib/types';
 
 export default function ChallengesPage() {
-  const { data, getCurrentPlayer, claimChallenge, verifyChallenge, disputeChallenge, getPlayerById } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, claimChallenge, verifyChallenge, disputeChallenge, getPlayerById } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'open' | 'claimed' | 'verified'>('open');

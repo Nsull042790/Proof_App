@@ -7,8 +7,8 @@ import { ROUNDS } from '@/lib/constants';
 import { getPlayerDisplayName, calculateTotal, calculateFrontNine, calculateBackNine } from '@/lib/utils';
 
 export default function ScoresPage() {
-  const { data, getCurrentPlayer, addScore } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, addScore } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
   const { showToast } = useToast();
 
   const [selectedRound, setSelectedRound] = useState(1);

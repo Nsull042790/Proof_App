@@ -11,11 +11,11 @@ interface DataContextType {
   data: AppData;
   isLoading: boolean;
   isOnline: boolean;
+  currentPlayerId: string | null;
 
   // Player methods
   updatePlayer: (playerId: string, updates: Partial<Player>) => void;
   setCurrentPlayer: (playerId: string) => void;
-  getCurrentPlayer: () => Player | null;
   getPlayerById: (playerId: string) => Player | undefined;
 
   // Score methods
@@ -205,26 +205,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Initialize current player ID from localStorage synchronously
-  const [storedPlayerId, setStoredPlayerId] = useState<string | null>(null);
-
-  // Load stored player ID on mount - validate it exists
-  useEffect(() => {
-    const stored = getStoredCurrentPlayerId();
-    if (stored) {
-      setStoredPlayerId(stored);
-      // Also update data if it's already loaded, but only if player exists
-      setData((prev) => {
-        if (!prev) return prev;
-        // Validate the stored ID matches an actual player
-        const playerExists = prev.players.some(p => p.id === stored);
-        if (playerExists && prev.currentPlayerId !== stored) {
-          return { ...prev, currentPlayerId: stored };
-        }
-        return prev;
-      });
+  // Separate state for currentPlayerId - this ensures immediate re-renders
+  const [currentPlayerId, setCurrentPlayerIdState] = useState<string | null>(() => {
+    // Initialize from localStorage on first render (client-side only)
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('proof-current-player');
     }
-  }, []);
+    return null;
+  });
 
   // Initial data load from Supabase
   useEffect(() => {
@@ -313,13 +301,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           // Get current player ID from localStorage - validate it exists in loaded players
           const storedPlayerId = getStoredCurrentPlayerId();
           const players = playersRes.data.map(mapPlayer);
-          const currentPlayerId = storedPlayerId && players.some(p => p.id === storedPlayerId)
+          const validatedPlayerId = storedPlayerId && players.some(p => p.id === storedPlayerId)
             ? storedPlayerId
             : null;
 
+          // Sync the currentPlayerId state with validated value
+          setCurrentPlayerIdState(validatedPlayerId);
+
           const loadedData: AppData = {
             players,
-            currentPlayerId: currentPlayerId,
+            currentPlayerId: validatedPlayerId,
             scores: scoresRes.data?.map(mapScore) || [],
             foursomes,
             photos: photosRes.data?.map(mapPhoto) || [],
@@ -542,19 +533,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('proof-current-player', playerId);
     }
-    // Update local state
-    setStoredPlayerId(playerId);
-    // Update data state
+    // Update the dedicated currentPlayerId state (triggers immediate re-render)
+    setCurrentPlayerIdState(playerId);
+    // Also update data state for consistency
     setData((prev) => {
       if (!prev) return prev;
       return { ...prev, currentPlayerId: playerId };
     });
   }, []);
-
-  const getCurrentPlayer = useCallback(() => {
-    if (!data || !data.currentPlayerId) return null;
-    return data.players.find((p) => p.id === data.currentPlayerId) || null;
-  }, [data]);
 
   const getPlayerById = useCallback((playerId: string) => {
     if (!data) return undefined;
@@ -1187,9 +1173,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         data,
         isLoading,
         isOnline,
+        currentPlayerId,
         updatePlayer,
         setCurrentPlayer,
-        getCurrentPlayer,
         getPlayerById,
         addScore,
         getPlayerScores,

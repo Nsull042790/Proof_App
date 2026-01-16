@@ -8,10 +8,14 @@ import { getHandicapLabel } from '@/lib/constants';
 import { getPlayerDisplayName } from '@/lib/utils';
 
 export default function SetupPage() {
-  const { data, updatePlayer, setCurrentPlayer, getCurrentPlayer } = useData();
+  const { data, updatePlayer, setCurrentPlayer, currentPlayerId } = useData();
   const { showToast } = useToast();
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
-  const currentPlayer = getCurrentPlayer();
+
+  // Derive currentPlayer directly from currentPlayerId state
+  const currentPlayer = currentPlayerId
+    ? data.players.find(p => p.id === currentPlayerId) || null
+    : null;
 
   const handleSavePlayer = (updates: Partial<Player>) => {
     if (editingPlayer) {

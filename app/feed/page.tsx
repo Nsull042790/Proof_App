@@ -15,8 +15,8 @@ export default function FeedPage() {
   const searchParams = useSearchParams();
   const showUpload = searchParams.get('action') === 'upload';
 
-  const { data, getCurrentPlayer, addPhoto, reactToPhoto, deletePhoto, getPlayerById, uploadPhoto, isOnline, refreshData } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, addPhoto, reactToPhoto, deletePhoto, getPlayerById, uploadPhoto, isOnline, refreshData } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
   const { showToast } = useToast();
   const confirm = useConfirm();
 

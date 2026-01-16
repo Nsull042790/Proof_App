@@ -44,8 +44,8 @@ const DEFAULT_LOCATION = {
 };
 
 export default function CaddiePage() {
-  const { getCurrentPlayer } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);

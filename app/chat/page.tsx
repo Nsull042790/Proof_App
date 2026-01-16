@@ -14,8 +14,8 @@ export default function ChatPage() {
   const searchParams = useSearchParams();
   const showQuoteModal = searchParams.get('action') === 'quote';
 
-  const { data, getCurrentPlayer, addMessage, addQuote, reactToMessage, reactToQuote, getPlayerById, refreshData } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, addMessage, addQuote, reactToMessage, reactToQuote, getPlayerById, refreshData } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<TabType>('chat');

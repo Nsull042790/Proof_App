@@ -6,8 +6,8 @@ import { ROUNDS, EMPTY_STATES } from '@/lib/constants';
 import { getPlayerDisplayName } from '@/lib/utils';
 
 export default function PredictionsPage() {
-  const { data, getCurrentPlayer, addPrediction, getPlayerById } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, addPrediction, getPlayerById } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
   const [selectedRound, setSelectedRound] = useState(1);
   const [isEditing, setIsEditing] = useState(false);

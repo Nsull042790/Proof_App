@@ -10,8 +10,8 @@ import { NightGame, NightGameScore } from '@/lib/types';
 type TabType = 'play' | 'irl' | 'scores';
 
 export default function GamesPage() {
-  const { data, getCurrentPlayer, getPlayerById } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, getPlayerById } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<TabType>('play');

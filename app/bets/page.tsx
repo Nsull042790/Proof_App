@@ -10,8 +10,8 @@ export default function BetsPage() {
   const searchParams = useSearchParams();
   const showCreate = searchParams.get('action') === 'create';
 
-  const { data, getCurrentPlayer, addBet, settleBet, getPlayerById } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, addBet, settleBet, getPlayerById } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
   const [isCreating, setIsCreating] = useState(showCreate);
   const [description, setDescription] = useState('');

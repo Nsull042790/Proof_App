@@ -5,8 +5,8 @@ import { useData } from '@/components/providers/DataProvider';
 import { getPlayerDisplayName } from '@/lib/utils';
 
 export default function CapsulePage() {
-  const { data, getCurrentPlayer, addTimeCapsuleEntry, getPlayerById } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, addTimeCapsuleEntry, getPlayerById } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
   const [isSealed, setIsSealed] = useState(true); // Toggle for reveal mode
   const [isEditing, setIsEditing] = useState(false);

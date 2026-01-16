@@ -7,8 +7,8 @@ import { ROUNDS } from '@/lib/constants';
 import { useMemo } from 'react';
 
 export default function HomePage() {
-  const { data, getCurrentPlayer, getLeaderboard } = useData();
-  const currentPlayer = getCurrentPlayer();
+  const { data, currentPlayerId, getLeaderboard } = useData();
+  const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
   const leaderboard = getLeaderboard();
 
   // Get recent activity
