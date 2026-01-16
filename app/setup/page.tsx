@@ -213,8 +213,7 @@ function EditPlayerModal({
                   type="button"
                   onClick={() => {
                     onSelectAsMe();
-                    // Small delay to ensure state updates before closing
-                    setTimeout(onClose, 100);
+                    onClose();
                   }}
                   className="btn-secondary flex-1"
                 >

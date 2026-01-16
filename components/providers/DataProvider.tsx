@@ -205,14 +205,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Separate state for currentPlayerId - this ensures immediate re-renders
-  const [currentPlayerId, setCurrentPlayerIdState] = useState<string | null>(() => {
-    // Initialize from localStorage on first render (client-side only)
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('proof-current-player');
+  // Separate state for currentPlayerId - initialized to null, then synced from localStorage
+  const [currentPlayerId, setCurrentPlayerIdState] = useState<string | null>(null);
+
+  // Sync currentPlayerId from localStorage on mount (client-side only)
+  useEffect(() => {
+    const stored = localStorage.getItem('proof-current-player');
+    if (stored) {
+      setCurrentPlayerIdState(stored);
     }
-    return null;
-  });
+  }, []);
 
   // Initial data load from Supabase
   useEffect(() => {
@@ -298,19 +300,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             await supabase.from('challenges').insert(challengesToInsert as any);
           }
 
-          // Get current player ID from localStorage - validate it exists in loaded players
-          const storedPlayerId = getStoredCurrentPlayerId();
           const players = playersRes.data.map(mapPlayer);
-          const validatedPlayerId = storedPlayerId && players.some(p => p.id === storedPlayerId)
-            ? storedPlayerId
-            : null;
-
-          // Sync the currentPlayerId state with validated value
-          setCurrentPlayerIdState(validatedPlayerId);
 
           const loadedData: AppData = {
             players,
-            currentPlayerId: validatedPlayerId,
+            currentPlayerId: null, // Will be synced from localStorage by the useEffect
             scores: scoresRes.data?.map(mapScore) || [],
             foursomes,
             photos: photosRes.data?.map(mapPhoto) || [],
