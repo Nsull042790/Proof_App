@@ -2,12 +2,14 @@
 
 import { useState, useMemo } from 'react';
 import { useData } from '@/components/providers/DataProvider';
+import { useToast } from '@/components/ui/Toast';
 import { ROUNDS } from '@/lib/constants';
 import { getPlayerDisplayName, calculateTotal, calculateFrontNine, calculateBackNine } from '@/lib/utils';
 
 export default function ScoresPage() {
   const { data, getCurrentPlayer, addScore } = useData();
   const currentPlayer = getCurrentPlayer();
+  const { showToast } = useToast();
 
   const [selectedRound, setSelectedRound] = useState(1);
   const [selectedPlayerId, setSelectedPlayerId] = useState(currentPlayer?.id || data.players[0]?.id);
@@ -16,7 +18,6 @@ export default function ScoresPage() {
   const [quickMode, setQuickMode] = useState(false);
   const [frontNine, setFrontNine] = useState(0);
   const [backNine, setBackNine] = useState(0);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [editingHole, setEditingHole] = useState<number | null>(null);
 
   // Load existing score if any
@@ -64,8 +65,7 @@ export default function ScoresPage() {
       blooperNote,
     });
 
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    showToast('Locked in. No take-backs.', 'success');
   };
 
   return (
@@ -267,13 +267,6 @@ export default function ScoresPage() {
       >
         Submit Round
       </button>
-
-      {/* Success Toast */}
-      {showSuccess && (
-        <div className="fixed bottom-24 left-4 right-4 bg-[#22c55e] text-white text-center py-3 px-4 rounded-lg z-50 animate-slide-up">
-          Locked in. No take-backs.
-        </div>
-      )}
     </div>
   );
 }

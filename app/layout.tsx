@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { DataProvider } from '@/components/providers/DataProvider';
+import { ToastProvider } from '@/components/ui/Toast';
+import { ConfirmProvider } from '@/components/ui/ConfirmDialog';
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
 import FAB from '@/components/layout/FAB';
@@ -35,13 +38,18 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/Proof_App/icons/icon-192.png" />
       </head>
       <body className="antialiased">
+        <ServiceWorkerRegister />
         <DataProvider>
-          <Header />
-          <main className="pt-14 pb-20 min-h-screen">
-            {children}
-          </main>
-          <FAB />
-          <BottomNav />
+          <ToastProvider>
+            <ConfirmProvider>
+              <Header />
+              <main className="pt-14 pb-20 min-h-screen">
+                {children}
+              </main>
+              <FAB />
+              <BottomNav />
+            </ConfirmProvider>
+          </ToastProvider>
         </DataProvider>
       </body>
     </html>

@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useData } from '@/components/providers/DataProvider';
+import { useToast } from '@/components/ui/Toast';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { EMPTY_STATES } from '@/lib/constants';
 import { getPlayerDisplayName, formatTimestamp, formatTime } from '@/lib/utils';
 
@@ -12,8 +14,9 @@ export default function ChatPage() {
   const searchParams = useSearchParams();
   const showQuoteModal = searchParams.get('action') === 'quote';
 
-  const { data, getCurrentPlayer, addMessage, addQuote, reactToMessage, reactToQuote, getPlayerById } = useData();
+  const { data, getCurrentPlayer, addMessage, addQuote, reactToMessage, reactToQuote, getPlayerById, refreshData } = useData();
   const currentPlayer = getCurrentPlayer();
+  const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<TabType>('chat');
   const [messageInput, setMessageInput] = useState('');
@@ -44,6 +47,7 @@ export default function ChatPage() {
       saidBy: quoteSaidBy,
       context: quoteContext.trim(),
     });
+    showToast('Quote added to the book!', 'success');
     setQuoteContent('');
     setQuoteSaidBy('');
     setQuoteContext('');
