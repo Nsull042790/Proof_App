@@ -9,6 +9,7 @@ interface MenuProps {
 }
 
 const menuItems = [
+  { href: '/caddie', icon: '🏌️', label: 'Smart Caddie' },
   { href: '/schedule', icon: '📅', label: 'Schedule' },
   { href: '/challenges', icon: '🎯', label: 'Challenges' },
   { href: '/scores', icon: '📝', label: 'Enter Scores' },
