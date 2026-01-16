@@ -27,6 +27,10 @@ interface DataContextType {
   addPhoto: (photo: Omit<Photo, 'id' | 'createdAt' | 'reactions'>) => void;
   reactToPhoto: (photoId: string, reaction: keyof Photo['reactions']) => void;
   uploadPhoto: (file: File) => Promise<string | null>;
+  deletePhoto: (photoId: string) => Promise<boolean>;
+
+  // Refresh
+  refreshData: () => Promise<void>;
 
   // Challenge methods
   claimChallenge: (challengeId: string, playerId: string) => void;
@@ -682,6 +686,39 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     });
   }, [isOnline, data]);
 
+  const deletePhoto = useCallback(async (photoId: string): Promise<boolean> => {
+    try {
+      const photo = data?.photos.find((p) => p.id === photoId);
+      if (!photo) return false;
+
+      if (isOnline) {
+        // Delete from Supabase
+        const { error } = await supabase.from('photos').delete().eq('id', photoId);
+        if (error) throw error;
+
+        // Try to delete from storage if it's a Supabase URL
+        if (photo.imageData.includes('supabase')) {
+          const fileName = photo.imageData.split('/').pop();
+          if (fileName) {
+            await supabase.storage.from('photos').remove([fileName]);
+          }
+        }
+      }
+
+      setData((prev) => {
+        if (!prev) return prev;
+        const newData = { ...prev, photos: prev.photos.filter((p) => p.id !== photoId) };
+        if (!isOnline) dataHelpers.saveData(newData);
+        return newData;
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      return false;
+    }
+  }, [isOnline, data]);
+
   // Challenge methods
   const claimChallenge = useCallback(async (challengeId: string, playerId: string) => {
     if (isOnline) {
@@ -1080,6 +1117,44 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return dataHelpers.getLeaderboard(data);
   }, [data]);
 
+  // Refresh data from server
+  const refreshData = useCallback(async () => {
+    if (!isOnline) return;
+
+    try {
+      const [
+        playersRes,
+        scoresRes,
+        photosRes,
+        messagesRes,
+        quotesRes,
+        betsRes,
+      ] = await Promise.all([
+        supabase.from('players').select('*').order('number'),
+        supabase.from('scores').select('*').order('created_at', { ascending: false }),
+        supabase.from('photos').select('*').order('created_at', { ascending: false }),
+        supabase.from('messages').select('*').order('created_at'),
+        supabase.from('quotes').select('*').order('created_at', { ascending: false }),
+        supabase.from('bets').select('*').order('created_at', { ascending: false }),
+      ]);
+
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          players: playersRes.data?.map(mapPlayer) || prev.players,
+          scores: scoresRes.data?.map(mapScore) || prev.scores,
+          photos: photosRes.data?.map(mapPhoto) || prev.photos,
+          messages: messagesRes.data?.map(mapMessage) || prev.messages,
+          quotes: quotesRes.data?.map(mapQuote) || prev.quotes,
+          bets: betsRes.data?.map(mapBet) || prev.bets,
+        };
+      });
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    }
+  }, [isOnline]);
+
   // Reset
   const resetData = useCallback(() => {
     const newData = dataHelpers.resetData();
@@ -1113,6 +1188,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         addPhoto,
         reactToPhoto,
         uploadPhoto,
+        deletePhoto,
+        refreshData,
         claimChallenge,
         verifyChallenge,
         disputeChallenge,
