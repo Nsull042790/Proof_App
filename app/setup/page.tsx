@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { useData } from '@/components/providers/DataProvider';
+import { useToast } from '@/components/ui/Toast';
 import { Player } from '@/lib/types';
 import { getHandicapLabel } from '@/lib/constants';
 import { getPlayerDisplayName } from '@/lib/utils';
 
 export default function SetupPage() {
   const { data, updatePlayer, setCurrentPlayer, getCurrentPlayer } = useData();
+  const { showToast } = useToast();
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const currentPlayer = getCurrentPlayer();
 
@@ -28,11 +30,18 @@ export default function SetupPage() {
       </div>
 
       {/* Current Player Selection */}
-      {currentPlayer && (
+      {currentPlayer ? (
         <div className="mb-6 p-4 bg-[#1a472a]/30 border border-[#1a472a] rounded-xl">
           <div className="text-[#888888] text-sm mb-1">You are playing as</div>
           <div className="text-[#FFD700] font-bold text-lg">
             {getPlayerDisplayName(currentPlayer)}
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 p-4 bg-[#8B0000]/20 border border-[#8B0000]/50 rounded-xl">
+          <div className="text-[#ff6b6b] font-medium">No player selected</div>
+          <div className="text-[#888888] text-sm mt-1">
+            Tap your name below and click "This is me" to get started
           </div>
         </div>
       )}
@@ -80,6 +89,7 @@ export default function SetupPage() {
           onSave={handleSavePlayer}
           onSelectAsMe={() => {
             setCurrentPlayer(editingPlayer.id);
+            showToast(`You're now playing as ${editingPlayer.name}!`, 'success');
           }}
           onClose={() => setEditingPlayer(null)}
         />
@@ -199,11 +209,12 @@ function EditPlayerModal({
                   type="button"
                   onClick={() => {
                     onSelectAsMe();
-                    onClose();
+                    // Small delay to ensure state updates before closing
+                    setTimeout(onClose, 100);
                   }}
                   className="btn-secondary flex-1"
                 >
-                  I'm {name.split(' ')[0]}
+                  This is me
                 </button>
               )}
               <button type="submit" className="btn-primary flex-1">

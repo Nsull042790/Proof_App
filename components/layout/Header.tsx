@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Menu from './Menu';
+import buildInfo from '@/lib/build-info.json';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold text-[#FFD700]">PROOF</span>
+            <span className="text-[10px] text-[#666666]">v{buildInfo.version}</span>
           </Link>
 
           <button

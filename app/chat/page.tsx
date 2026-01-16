@@ -136,7 +136,7 @@ export default function ChatPage() {
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   className="input flex-1"
-                  placeholder="Type a message..."
+                  placeholder={`Message as ${currentPlayer.name.split(' ')[0]}...`}
                 />
                 <button
                   onClick={handleSendMessage}
@@ -147,9 +147,14 @@ export default function ChatPage() {
                 </button>
               </div>
             ) : (
-              <p className="text-center text-[#888888] text-sm">
-                Select a player in Setup to chat
-              </p>
+              <div className="text-center">
+                <p className="text-[#888888] text-sm mb-2">
+                  Select a player in Setup to chat
+                </p>
+                <a href="/setup" className="text-[#FFD700] text-sm underline">
+                  Go to Setup
+                </a>
+              </div>
             )}
           </div>
         </>
