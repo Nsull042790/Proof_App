@@ -8,6 +8,12 @@ import { ROUNDS } from '@/lib/constants';
 export default function ShamePage() {
   const { data, getPlayerById } = useData();
 
+  // Helper to safely get player name
+  const getPlayerName = (playerId: string) => {
+    const player = getPlayerById(playerId);
+    return player ? getPlayerDisplayName(player) : 'Unknown';
+  };
+
   const shameBoard = useMemo(() => {
     const entries: Array<{
       title: string;
@@ -120,8 +126,8 @@ export default function ShamePage() {
           title: 'Viral Failure',
           emoji: '📸',
           player: mostReactedDisaster.taggedPlayers.length > 0
-            ? getPlayerDisplayName(getPlayerById(mostReactedDisaster.taggedPlayers[0])!)
-            : getPlayerDisplayName(getPlayerById(mostReactedDisaster.uploadedBy)!),
+            ? getPlayerName(mostReactedDisaster.taggedPlayers[0])
+            : getPlayerName(mostReactedDisaster.uploadedBy),
           detail: `${mostReactedDisaster.reactions.dead + mostReactedDisaster.reactions.laugh} reactions on their disaster`,
           severity: 'medium',
         });

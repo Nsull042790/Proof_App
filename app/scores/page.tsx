@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useData } from '@/components/providers/DataProvider';
 import { useToast } from '@/components/ui/Toast';
 import { ROUNDS } from '@/lib/constants';
@@ -12,7 +12,14 @@ export default function ScoresPage() {
   const { showToast } = useToast();
 
   const [selectedRound, setSelectedRound] = useState(1);
-  const [selectedPlayerId, setSelectedPlayerId] = useState(currentPlayer?.id || data.players[0]?.id);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | undefined>(undefined);
+
+  // Sync selectedPlayerId when currentPlayer is loaded
+  useEffect(() => {
+    if (!selectedPlayerId) {
+      setSelectedPlayerId(currentPlayer?.id || data.players[0]?.id);
+    }
+  }, [currentPlayer?.id, data.players, selectedPlayerId]);
   const [holeScores, setHoleScores] = useState<number[]>(Array(18).fill(0));
   const [blooperNote, setBlooperNote] = useState('');
   const [quickMode, setQuickMode] = useState(false);

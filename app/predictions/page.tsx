@@ -9,6 +9,12 @@ export default function PredictionsPage() {
   const { data, currentPlayerId, addPrediction, getPlayerById } = useData();
   const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
+  // Helper to safely get player name
+  const getPlayerName = (playerId: string) => {
+    const player = getPlayerById(playerId);
+    return player ? getPlayerDisplayName(player) : 'Unknown';
+  };
+
   const [selectedRound, setSelectedRound] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
   const [predictedWinner, setPredictedWinner] = useState('');
@@ -100,7 +106,7 @@ export default function PredictionsPage() {
             <div className="flex justify-between">
               <span className="text-[#888888]">Round Winner</span>
               <span className="text-white">
-                {getPlayerDisplayName(getPlayerById(existingPrediction.predictedWinner)!)}
+                {getPlayerName(existingPrediction.predictedWinner)}
               </span>
             </div>
             <div className="flex justify-between">
@@ -110,13 +116,13 @@ export default function PredictionsPage() {
             <div className="flex justify-between">
               <span className="text-[#888888]">First in Water</span>
               <span className="text-white">
-                {getPlayerDisplayName(getPlayerById(existingPrediction.firstWater)!)}
+                {getPlayerName(existingPrediction.firstWater)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#888888]">Most 3-Putts</span>
               <span className="text-white">
-                {getPlayerDisplayName(getPlayerById(existingPrediction.most3Putts)!)}
+                {getPlayerName(existingPrediction.most3Putts)}
               </span>
             </div>
           </div>
@@ -229,17 +235,17 @@ export default function PredictionsPage() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="text-[#888888]">Winner:</div>
                     <div className="text-white">
-                      {getPlayerDisplayName(getPlayerById(pred.predictedWinner)!)}
+                      {getPlayerName(pred.predictedWinner)}
                     </div>
                     <div className="text-[#888888]">O/U:</div>
                     <div className="text-white">{pred.ownOverUnder}</div>
                     <div className="text-[#888888]">First Water:</div>
                     <div className="text-white">
-                      {getPlayerDisplayName(getPlayerById(pred.firstWater)!)}
+                      {getPlayerName(pred.firstWater)}
                     </div>
                     <div className="text-[#888888]">Most 3-Putts:</div>
                     <div className="text-white">
-                      {getPlayerDisplayName(getPlayerById(pred.most3Putts)!)}
+                      {getPlayerName(pred.most3Putts)}
                     </div>
                   </div>
                 </div>

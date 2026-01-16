@@ -10,6 +10,12 @@ export default function ChallengesPage() {
   const { data, currentPlayerId, claimChallenge, verifyChallenge, disputeChallenge, getPlayerById } = useData();
   const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
+  // Helper to safely get player name
+  const getPlayerName = (playerId: string) => {
+    const player = getPlayerById(playerId);
+    return player ? getPlayerDisplayName(player) : 'Unknown';
+  };
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'open' | 'claimed' | 'verified'>('open');
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
@@ -219,7 +225,7 @@ export default function ChallengesPage() {
                     <div className="text-center text-[#888888] mb-4">
                       Claimed by{' '}
                       <span className="text-[#FFD700]">
-                        {getPlayerDisplayName(getPlayerById(selectedChallenge.claimedBy)!)}
+                        {getPlayerName(selectedChallenge.claimedBy)}
                       </span>
                     </div>
                   )}
@@ -249,7 +255,7 @@ export default function ChallengesPage() {
                     <div className="text-xs text-[#666666] text-center">
                       Verified by:{' '}
                       {selectedChallenge.verifiedBy
-                        .map((id) => getPlayerDisplayName(getPlayerById(id)!))
+                        .map((id) => getPlayerName(id))
                         .join(', ')}
                     </div>
                   )}

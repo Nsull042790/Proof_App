@@ -8,6 +8,12 @@ export default function CapsulePage() {
   const { data, currentPlayerId, addTimeCapsuleEntry, getPlayerById } = useData();
   const currentPlayer = currentPlayerId ? data.players.find(p => p.id === currentPlayerId) || null : null;
 
+  // Helper to safely get player name
+  const getPlayerName = (playerId: string) => {
+    const player = getPlayerById(playerId);
+    return player ? getPlayerDisplayName(player) : 'Unknown';
+  };
+
   const [isSealed, setIsSealed] = useState(true); // Toggle for reveal mode
   const [isEditing, setIsEditing] = useState(false);
   const [tripWinner, setTripWinner] = useState('');
@@ -217,13 +223,13 @@ export default function CapsulePage() {
                     <div>
                       <span className="text-[#888888]">Predicted Winner: </span>
                       <span className="text-white">
-                        {getPlayerDisplayName(getPlayerById(entry.tripWinner)!)}
+                        {getPlayerName(entry.tripWinner)}
                       </span>
                     </div>
                     <div>
                       <span className="text-[#888888]">Predicted Last: </span>
                       <span className="text-white">
-                        {getPlayerDisplayName(getPlayerById(entry.tripLast)!)}
+                        {getPlayerName(entry.tripLast)}
                       </span>
                     </div>
                     {entry.secretGoal && (
