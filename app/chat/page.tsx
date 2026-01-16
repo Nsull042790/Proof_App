@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useData } from '@/components/providers/DataProvider';
 import { useToast } from '@/components/ui/Toast';
 import { PullToRefresh } from '@/components/ui/PullToRefresh';
@@ -151,9 +152,9 @@ export default function ChatPage() {
                 <p className="text-[#888888] text-sm mb-2">
                   Select a player in Setup to chat
                 </p>
-                <a href="/setup" className="text-[#FFD700] text-sm underline">
+                <Link href="/setup" className="text-[#FFD700] text-sm underline">
                   Go to Setup
-                </a>
+                </Link>
               </div>
             )}
           </div>
