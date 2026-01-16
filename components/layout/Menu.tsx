@@ -13,6 +13,7 @@ const menuItems = [
   { href: '/challenges', icon: '🎯', label: 'Challenges' },
   { href: '/scores', icon: '📝', label: 'Enter Scores' },
   { href: '/bets', icon: '🎰', label: 'Side Bets' },
+  { href: '/games', icon: '🌙', label: 'Night Games' },
   { href: '/predictions', icon: '🔮', label: 'Predictions' },
   { href: '/capsule', icon: '⏱️', label: 'Time Capsule' },
   { href: '/shame', icon: '😈', label: 'Shame Board' },

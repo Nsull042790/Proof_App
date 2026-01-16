@@ -332,6 +332,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               nearestHospital: (tripInfoRes.data as any).nearest_hospital,
               localPizza: (tripInfoRes.data as any).local_pizza,
             } : dataHelpers.loadData().tripInfo,
+            nightGames: [],
+            mostLikelyTo: [],
+            wouldYouRather: [],
           };
 
           setData(loadedData);

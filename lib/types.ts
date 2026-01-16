@@ -110,6 +110,38 @@ export interface TimeCapsuleEntry {
   createdAt: string;
 }
 
+// Night Games Types
+export interface NightGame {
+  id: string;
+  name: string;
+  type: 'irl' | 'app'; // IRL = real world game, app = in-app game
+  scores: NightGameScore[];
+  createdAt: string;
+  status: 'active' | 'finished';
+}
+
+export interface NightGameScore {
+  playerId: string;
+  score: number; // Can be points, wins, or any numeric value
+  place?: number; // 1st, 2nd, 3rd for finished games
+}
+
+export interface MostLikelyToRound {
+  id: string;
+  prompt: string;
+  votes: { [voterId: string]: string }; // voterId -> votedForPlayerId
+  winner?: string;
+  createdAt: string;
+}
+
+export interface WouldYouRatherRound {
+  id: string;
+  optionA: string;
+  optionB: string;
+  votes: { [playerId: string]: 'A' | 'B' };
+  createdAt: string;
+}
+
 export interface ItineraryNotes {
   thursday: string[];
   friday: string[];
@@ -141,4 +173,7 @@ export interface AppData {
   timeCapsule: TimeCapsuleEntry[];
   itineraryNotes: ItineraryNotes;
   tripInfo: TripInfo;
+  nightGames: NightGame[];
+  mostLikelyTo: MostLikelyToRound[];
+  wouldYouRather: WouldYouRatherRound[];
 }

@@ -1,6 +1,6 @@
 // localStorage data management for PROOF App
 
-import { AppData, Player, Score, Photo, Challenge, Bet, Message, Quote, Prediction, TimeCapsuleEntry, Foursomes, ItineraryNotes, TripInfo } from './types';
+import { AppData, Player, Score, Photo, Challenge, Bet, Message, Quote, Prediction, TimeCapsuleEntry, Foursomes, ItineraryNotes, TripInfo, NightGame, MostLikelyToRound, WouldYouRatherRound } from './types';
 import { generateId } from './utils';
 import { createInitialChallenges } from './challenges';
 
@@ -78,6 +78,9 @@ const getDefaultData = (): AppData => ({
   timeCapsule: [],
   itineraryNotes: createInitialItineraryNotes(),
   tripInfo: createInitialTripInfo(),
+  nightGames: [],
+  mostLikelyTo: [],
+  wouldYouRather: [],
 });
 
 // Load data from localStorage
