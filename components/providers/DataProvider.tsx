@@ -208,15 +208,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Initialize current player ID from localStorage synchronously
   const [storedPlayerId, setStoredPlayerId] = useState<string | null>(null);
 
-  // Load stored player ID on mount
+  // Load stored player ID on mount - validate it exists
   useEffect(() => {
     const stored = getStoredCurrentPlayerId();
     if (stored) {
       setStoredPlayerId(stored);
-      // Also update data if it's already loaded
+      // Also update data if it's already loaded, but only if player exists
       setData((prev) => {
         if (!prev) return prev;
-        if (prev.currentPlayerId !== stored) {
+        // Validate the stored ID matches an actual player
+        const playerExists = prev.players.some(p => p.id === stored);
+        if (playerExists && prev.currentPlayerId !== stored) {
           return { ...prev, currentPlayerId: stored };
         }
         return prev;
@@ -308,11 +310,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             await supabase.from('challenges').insert(challengesToInsert as any);
           }
 
-          // Get current player ID from localStorage
-          const currentPlayerId = getStoredCurrentPlayerId();
+          // Get current player ID from localStorage - validate it exists in loaded players
+          const storedPlayerId = getStoredCurrentPlayerId();
+          const players = playersRes.data.map(mapPlayer);
+          const currentPlayerId = storedPlayerId && players.some(p => p.id === storedPlayerId)
+            ? storedPlayerId
+            : null;
 
           const loadedData: AppData = {
-            players: playersRes.data.map(mapPlayer),
+            players,
             currentPlayerId: currentPlayerId,
             scores: scoresRes.data?.map(mapScore) || [],
             foursomes,
