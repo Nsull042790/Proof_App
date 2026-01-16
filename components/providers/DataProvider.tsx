@@ -189,20 +189,34 @@ const mapTimeCapsule = (row: any): TimeCapsuleEntry => ({
   createdAt: row.created_at,
 });
 
+// Helper to get current player ID from localStorage (runs on client only)
+const getStoredCurrentPlayerId = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('proof-current-player');
+};
+
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<AppData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const currentPlayerIdRef = useRef<string | null>(null);
 
-  // Load current player from localStorage
+  // Initialize current player ID from localStorage synchronously
+  const [storedPlayerId, setStoredPlayerId] = useState<string | null>(null);
+
+  // Load stored player ID on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('proof-current-player');
-      if (stored) {
-        currentPlayerIdRef.current = stored;
-      }
+    const stored = getStoredCurrentPlayerId();
+    if (stored) {
+      setStoredPlayerId(stored);
+      // Also update data if it's already loaded
+      setData((prev) => {
+        if (!prev) return prev;
+        if (prev.currentPlayerId !== stored) {
+          return { ...prev, currentPlayerId: stored };
+        }
+        return prev;
+      });
     }
   }, []);
 
@@ -290,9 +304,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             await supabase.from('challenges').insert(challengesToInsert as any);
           }
 
+          // Get current player ID from localStorage
+          const currentPlayerId = getStoredCurrentPlayerId();
+
           const loadedData: AppData = {
             players: playersRes.data.map(mapPlayer),
-            currentPlayerId: currentPlayerIdRef.current,
+            currentPlayerId: currentPlayerId,
             scores: scoresRes.data?.map(mapScore) || [],
             foursomes,
             photos: photosRes.data?.map(mapPhoto) || [],
@@ -508,10 +525,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, [isOnline]);
 
   const setCurrentPlayer = useCallback((playerId: string) => {
-    currentPlayerIdRef.current = playerId;
+    // Save to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('proof-current-player', playerId);
     }
+    // Update local state
+    setStoredPlayerId(playerId);
+    // Update data state
     setData((prev) => {
       if (!prev) return prev;
       return { ...prev, currentPlayerId: playerId };
