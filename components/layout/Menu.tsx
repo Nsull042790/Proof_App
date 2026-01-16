@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
+import buildInfo from '@/lib/build-info.json';
 
 interface MenuProps {
   isOpen: boolean;
@@ -87,6 +88,9 @@ export default function Menu({ isOpen, onClose }: MenuProps) {
         <div className="p-4 border-t border-[#2a2a2a] mt-4">
           <p className="text-[#666666] text-xs text-center">
             PROOF — Every trip leaves a mark
+          </p>
+          <p className="text-[#444444] text-[10px] text-center mt-2">
+            v{buildInfo.version} • Built {new Date(buildInfo.buildTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
           </p>
         </div>
       </div>
