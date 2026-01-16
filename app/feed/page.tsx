@@ -11,16 +11,18 @@ export default function FeedPage() {
   const searchParams = useSearchParams();
   const showUpload = searchParams.get('action') === 'upload';
 
-  const { data, getCurrentPlayer, addPhoto, reactToPhoto, getPlayerById } = useData();
+  const { data, getCurrentPlayer, addPhoto, reactToPhoto, getPlayerById, uploadPhoto, isOnline } = useData();
   const currentPlayer = getCurrentPlayer();
 
   const [isUploading, setIsUploading] = useState(showUpload);
   const [uploadStep, setUploadStep] = useState(1);
   const [imageData, setImageData] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [proofType, setProofType] = useState<Photo['proofType']>('life');
   const [caption, setCaption] = useState('');
   const [customCaption, setCustomCaption] = useState('');
   const [taggedPlayers, setTaggedPlayers] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -29,6 +31,9 @@ export default function FeedPage() {
     if (!file) return;
 
     try {
+      // Store the file for later upload
+      setSelectedFile(file);
+      // Create a preview
       const compressed = await compressImage(file);
       setImageData(compressed);
       setUploadStep(2);
@@ -37,25 +42,49 @@ export default function FeedPage() {
     }
   };
 
-  const handleUpload = () => {
-    if (!imageData || !currentPlayer) return;
+  const handleUpload = async () => {
+    if (!currentPlayer || (!imageData && !selectedFile)) return;
 
-    addPhoto({
-      uploadedBy: currentPlayer.id,
-      imageData,
-      caption: caption === 'custom' ? customCaption : caption,
-      proofType,
-      taggedPlayers,
-    });
+    setIsSubmitting(true);
 
-    // Reset
-    setIsUploading(false);
-    setUploadStep(1);
-    setImageData(null);
-    setProofType('life');
-    setCaption('');
-    setCustomCaption('');
-    setTaggedPlayers([]);
+    try {
+      let finalImageUrl = imageData;
+
+      // If online and we have a file, upload to Supabase Storage
+      if (isOnline && selectedFile) {
+        const uploadedUrl = await uploadPhoto(selectedFile);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+
+      if (!finalImageUrl) {
+        console.error('No image data available');
+        return;
+      }
+
+      addPhoto({
+        uploadedBy: currentPlayer.id,
+        imageData: finalImageUrl,
+        caption: caption === 'custom' ? customCaption : caption,
+        proofType,
+        taggedPlayers,
+      });
+
+      // Reset
+      setIsUploading(false);
+      setUploadStep(1);
+      setImageData(null);
+      setSelectedFile(null);
+      setProofType('life');
+      setCaption('');
+      setCustomCaption('');
+      setTaggedPlayers([]);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReaction = (photoId: string, reaction: keyof Photo['reactions']) => {
